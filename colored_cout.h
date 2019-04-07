@@ -31,6 +31,8 @@
 #include <iostream>
 
 #ifdef _WIN32
+#   define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
+#   define NOMINMAX // Fixes the conflicts with STL
 #   include <Windows.h>
 #   include <wincon.h>
 #endif
