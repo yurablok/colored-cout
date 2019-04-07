@@ -44,12 +44,12 @@ namespace clr
 //           << clr::cyan    << "cyan "
 //           << clr::blue    << "blue "
 //           << clr::magenta << "magenta\n"
-//           << clr::default_;
+//           << clr::reset;
 
 #ifdef _WIN32
     enum color
     {
-        default_  = 0
+        reset     = 0
         , blue    = FOREGROUND_BLUE | FOREGROUND_INTENSITY
         , green   = FOREGROUND_GREEN | FOREGROUND_INTENSITY
         , cyan    = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY
@@ -61,7 +61,7 @@ namespace clr
 #elif __unix__
     enum color
     {
-        default_
+        reset
         , red
         , green
         , yellow
@@ -81,7 +81,7 @@ namespace clr
         {
             switch (clr)
             {
-            case clr::default_: return nullptr;
+            case clr::reset:    return nullptr;
             case clr::red:      return "1";
             case clr::green:    return "2";
             case clr::yellow:   return "3";
@@ -108,7 +108,7 @@ type& operator<<(type& _Ostr, const clr::color &color)
         clr::internal::old_color_attrs = buffer_info.wAttributes;
     }
 #endif
-    if (color == clr::default_)
+    if (color == clr::reset)
     {
 #ifdef _WIN32
         _Ostr.flush();
