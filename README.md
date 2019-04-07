@@ -20,7 +20,7 @@ std::cout << clr::red     << "red "
           << clr::cyan    << "cyan "
           << clr::blue    << "blue "
           << clr::magenta << "magenta\n"
-          << clr::default_;
+          << clr::reset;
 ```
 
 Tested on MSVC 14.0 + Windows 10 & GCC 5.2.1 + Ubuntu 15.10.
