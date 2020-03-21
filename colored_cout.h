@@ -27,7 +27,6 @@
  * - https://github.com/yurablok/colored-cout
  ********************************************************************************/
 #pragma once
-
 #include <iostream>
 
 #ifdef _WIN32
@@ -37,97 +36,104 @@
 #   include <wincon.h>
 #endif
 
-namespace clr
-{
 // usage:
-// std::cout << clr::red     << "red "
-//           << clr::yellow  << "yellow "
-//           << clr::green   << "green "
-//           << clr::cyan    << "cyan "
-//           << clr::blue    << "blue "
-//           << clr::magenta << "magenta\n"
-//           << clr::reset;
+// std::cout << clr::red     << " red "
+//           << clr::yellow  << " yellow "
+//           << clr::green   << " green "
+//           << clr::cyan    << " cyan "
+//           << clr::blue    << " blue "
+//           << clr::magenta << " magenta "
+//           << clr::grey    << " grey "
+//           << clr::white   << " white "
+//           << clr::reset   << " reset\n";
+// std::cout << clr::red     << clr::on_cyan    << " red "
+//           << clr::yellow  << clr::on_blue    << " yellow "
+//           << clr::green   << clr::on_magenta << " green "
+//           << clr::cyan    << clr::on_red     << " cyan "
+//           << clr::blue    << clr::on_yellow  << " blue "
+//           << clr::magenta << clr::on_green   << " magenta "
+//           << clr::grey    << clr::on_white   << " grey "
+//           << clr::white   << clr::on_grey    << " white "
+//           << clr::reset                      << " reset\n";
 
 #ifdef _WIN32
-    enum color
-    {
-        reset     = 0
-        , blue    = FOREGROUND_BLUE | FOREGROUND_INTENSITY
-        , green   = FOREGROUND_GREEN | FOREGROUND_INTENSITY
-        , cyan    = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY
-        , red     = FOREGROUND_RED | FOREGROUND_INTENSITY
-        , magenta = FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY
-        , yellow  = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
-        , white   = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
-    };
+enum class clr : uint16_t {
+      grey       = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
+    , blue       = FOREGROUND_BLUE | FOREGROUND_INTENSITY
+    , green      = FOREGROUND_GREEN | FOREGROUND_INTENSITY
+    , cyan       = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY
+    , red        = FOREGROUND_RED | FOREGROUND_INTENSITY
+    , magenta    = FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY
+    , yellow     = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
+    , white      = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
+    , on_blue    = BACKGROUND_BLUE //| BACKGROUND_INTENSITY
+    , on_red     = BACKGROUND_RED //| BACKGROUND_INTENSITY
+    , on_magenta = BACKGROUND_BLUE | BACKGROUND_RED //| BACKGROUND_INTENSITY
+    , on_grey    = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED
+    , on_green   = BACKGROUND_GREEN | BACKGROUND_INTENSITY
+    , on_cyan    = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_INTENSITY
+    , on_yellow  = BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY
+    , on_white   = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY
+    , reset
 #elif __unix__
-    enum color
-    {
-        reset
-        , red
-        , green
-        , yellow
-        , blue
-        , magenta
-        , cyan
-        , white
-    };
+enum class clr : uint8_t {
+      grey       = 30
+    , red        = 31
+    , green      = 32
+    , yellow     = 33
+    , blue       = 34
+    , magenta    = 35
+    , cyan       = 36
+    , white      = 37
+    , on_grey    = 40
+    , on_red     = 41
+    , on_green   = 42
+    , on_yellow  = 43
+    , on_blue    = 44
+    , on_magenta = 45
+    , on_cyan    = 46
+    , on_white   = 47
+    , reset
+#else
+#   error unsupported
 #endif
+};
 
-    namespace internal
-    {
+template <typename type>
+type& operator<<(type& ostream, const clr color) {
 #ifdef _WIN32
-        static WORD old_color_attrs = -1;
-#elif __unix__
-        static const char* GetAnsiColorCode(const color &clr)
-        {
-            switch (clr)
-            {
-            case clr::reset:    return nullptr;
-            case clr::red:      return "1";
-            case clr::green:    return "2";
-            case clr::yellow:   return "3";
-            case clr::blue:     return "4";
-            case clr::magenta:  return "5";
-            case clr::cyan:     return "6";
-            case clr::white:    return "7";
-            default:            return nullptr;
-            }
-        }
-#endif
-    }
-}
-
-template <class type>
-type& operator<<(type& _Ostr, const clr::color &color)
-{
-#ifdef _WIN32
-    if (clr::internal::old_color_attrs == static_cast<WORD>(-1))
-    {
-        // Store the current text color
+    static const uint16_t initial_attributes = [] {
         CONSOLE_SCREEN_BUFFER_INFO buffer_info;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &buffer_info);
-        clr::internal::old_color_attrs = buffer_info.wAttributes;
-    }
+        return buffer_info.wAttributes;
+    }();
+    static uint16_t background = initial_attributes & 0x00F0;
+    static uint16_t foreground = initial_attributes & 0x000F;
 #endif
-    if (color == clr::reset)
-    {
+    if (color == clr::reset) {
 #ifdef _WIN32
-        _Ostr.flush();
-        // Restores the text color.
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), clr::internal::old_color_attrs);
+        ostream.flush();
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), initial_attributes);
 #elif __unix__
-        _Ostr << "\033[m";  // Resets the terminal to default
+        ostream << "\033[m";
 #endif
     }
-    else
-    {
+    else {
 #ifdef _WIN32
-        _Ostr.flush();
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), static_cast<WORD>(color));
+        uint16_t set = 0;
+        if (static_cast<uint16_t>(color) & 0x00F0) {
+            background = static_cast<uint16_t>(color);
+            set = background | foreground;
+        }
+        else if (static_cast<uint16_t>(color) & 0x000F) {
+            foreground = static_cast<uint16_t>(color);
+            set = background | foreground;
+        }
+        ostream.flush();
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), set);
 #elif __unix__
-        _Ostr << "\033[0;3" << clr::internal::GetAnsiColorCode(color) << "m";
+        ostream << "\033[" << static_cast<uint32_t>(color) << "m";
 #endif
     }
-    return _Ostr;
+    return ostream;
 }
