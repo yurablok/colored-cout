@@ -27,14 +27,7 @@
  * - https://github.com/yurablok/colored-cout
  ********************************************************************************/
 #pragma once
-#include <iostream>
-
-#ifdef _WIN32
-#   define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
-#   define NOMINMAX // Fixes the conflicts with STL
-#   include <Windows.h>
-#   include <wincon.h>
-#endif
+#include <cstdint>
 
 // usage:
 // std::cout << clr::red     << " red "
@@ -58,23 +51,23 @@
 
 #ifdef _WIN32
 enum class clr : uint16_t {
-      grey       = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
-    , blue       = FOREGROUND_BLUE | FOREGROUND_INTENSITY
-    , green      = FOREGROUND_GREEN | FOREGROUND_INTENSITY
-    , cyan       = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY
-    , red        = FOREGROUND_RED | FOREGROUND_INTENSITY
-    , magenta    = FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY
-    , yellow     = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
-    , white      = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
-    , on_blue    = BACKGROUND_BLUE //| BACKGROUND_INTENSITY
-    , on_red     = BACKGROUND_RED //| BACKGROUND_INTENSITY
-    , on_magenta = BACKGROUND_BLUE | BACKGROUND_RED //| BACKGROUND_INTENSITY
-    , on_grey    = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED
-    , on_green   = BACKGROUND_GREEN | BACKGROUND_INTENSITY
-    , on_cyan    = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_INTENSITY
-    , on_yellow  = BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY
-    , on_white   = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY
-    , reset
+      grey
+    , blue
+    , green
+    , cyan
+    , red
+    , magenta
+    , yellow
+    , white
+    , on_blue
+    , on_red
+    , on_magenta
+    , on_grey
+    , on_green
+    , on_cyan
+    , on_yellow
+    , on_white
+    , reset      = 0xFF
 #elif __unix__
 enum class clr : uint8_t {
       grey       = 30
@@ -99,21 +92,25 @@ enum class clr : uint8_t {
 #endif
 };
 
+#ifdef _WIN32
+namespace colored_cout_impl {
+    uint16_t getColorCode(const clr color);
+    uint16_t getConsoleTextAttr();
+    void setConsoleTextAttr(const uint16_t attr);
+}
+#endif
+
 template <typename type>
 type& operator<<(type& ostream, const clr color) {
 #ifdef _WIN32
-    static const uint16_t initial_attributes = [] {
-        CONSOLE_SCREEN_BUFFER_INFO buffer_info;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &buffer_info);
-        return buffer_info.wAttributes;
-    }();
+    static const uint16_t initial_attributes = colored_cout_impl::getConsoleTextAttr();
     static uint16_t background = initial_attributes & 0x00F0;
     static uint16_t foreground = initial_attributes & 0x000F;
 #endif
     if (color == clr::reset) {
 #ifdef _WIN32
         ostream.flush();
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), initial_attributes);
+        colored_cout_impl::setConsoleTextAttr(initial_attributes);
 #elif __unix__
         ostream << "\033[m";
 #endif
@@ -121,16 +118,17 @@ type& operator<<(type& ostream, const clr color) {
     else {
 #ifdef _WIN32
         uint16_t set = 0;
-        if (static_cast<uint16_t>(color) & 0x00F0) {
-            background = static_cast<uint16_t>(color);
+        const uint16_t colorCode = colored_cout_impl::getColorCode(color);
+        if (colorCode & 0x00F0) {
+            background = colorCode;
             set = background | foreground;
         }
-        else if (static_cast<uint16_t>(color) & 0x000F) {
-            foreground = static_cast<uint16_t>(color);
+        else if (colorCode & 0x000F) {
+            foreground = colorCode;
             set = background | foreground;
         }
         ostream.flush();
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), set);
+        colored_cout_impl::setConsoleTextAttr(set);
 #elif __unix__
         ostream << "\033[" << static_cast<uint32_t>(color) << "m";
 #endif
