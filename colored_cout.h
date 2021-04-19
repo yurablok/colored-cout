@@ -103,7 +103,8 @@ namespace colored_cout_impl {
 template <typename type>
 type& operator<<(type& ostream, const clr color) {
 #ifdef _WIN32
-    static const uint16_t initial_attributes = colored_cout_impl::getConsoleTextAttr();
+    //static const uint16_t initial_attributes = colored_cout_impl::getConsoleTextAttr();
+    static const uint16_t initial_attributes = colored_cout_impl::getColorCode(clr::grey);
     static uint16_t background = initial_attributes & 0x00F0;
     static uint16_t foreground = initial_attributes & 0x000F;
 #endif
@@ -111,6 +112,8 @@ type& operator<<(type& ostream, const clr color) {
 #ifdef _WIN32
         ostream.flush();
         colored_cout_impl::setConsoleTextAttr(initial_attributes);
+        background = initial_attributes & 0x00F0;
+        foreground = initial_attributes & 0x000F;
 #elif __unix__
         ostream << "\033[m";
 #endif
