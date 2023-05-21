@@ -68,6 +68,7 @@ enum class clr : uint16_t {
     , on_yellow
     , on_white
     , reset      = 0xFF
+};
 #elif __unix__
 enum class clr : uint8_t {
       grey       = 30
@@ -87,10 +88,31 @@ enum class clr : uint8_t {
     , on_cyan    = 46
     , on_white   = 47
     , reset
-#else
-#   error unsupported
-#endif
 };
+#elif __APPLE__
+enum class clr : uint8_t {
+      grey       = 30
+    , red        = 31
+    , green      = 32
+    , yellow     = 33
+    , blue       = 34
+    , magenta    = 35
+    , cyan       = 36
+    , white      = 37
+    , on_grey    = 40
+    , on_red     = 41
+    , on_green   = 42
+    , on_yellow  = 43
+    , on_blue    = 44
+    , on_magenta = 45
+    , on_cyan    = 46
+    , on_white   = 47
+    , reset
+};
+#else
+#error unsupported
+#endif
+
 
 #ifdef _WIN32
 namespace colored_cout_impl {
@@ -116,6 +138,8 @@ type& operator<<(type& ostream, const clr color) {
         foreground = initial_attributes & 0x000F;
 #elif __unix__
         ostream << "\033[m";
+#elif __APPLE__
+        ostream << "\033[m";
 #endif
     }
     else {
@@ -133,6 +157,8 @@ type& operator<<(type& ostream, const clr color) {
         ostream.flush();
         colored_cout_impl::setConsoleTextAttr(set);
 #elif __unix__
+        ostream << "\033[" << static_cast<uint32_t>(color) << "m";
+#elif __APPLE__
         ostream << "\033[" << static_cast<uint32_t>(color) << "m";
 #endif
     }
