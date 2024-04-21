@@ -50,24 +50,33 @@
 //           << clr::reset                      << " reset\n";
 
 #if defined(_WIN32)
-enum class clr : uint16_t {
-    grey,
-    blue,
-    green,
-    cyan,
-    red,
-    magenta,
-    yellow,
-    white,
-    on_blue,
-    on_red,
-    on_magenta,
-    on_grey,
-    on_green,
-    on_cyan,
-    on_yellow,
-    on_white,
-    reset      = 0xFF
+enum class clr : uint8_t {
+    __FOREGROUND_BLUE      = 0x0001,
+    __FOREGROUND_GREEN     = 0x0002,
+    __FOREGROUND_RED       = 0x0004,
+    __FOREGROUND_INTENSITY = 0x0008,
+    __BACKGROUND_BLUE      = 0x0010,
+    __BACKGROUND_GREEN     = 0x0020,
+    __BACKGROUND_RED       = 0x0040,
+    __BACKGROUND_INTENSITY = 0x0080,
+
+    grey        = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_RED,
+    blue        = __FOREGROUND_BLUE  | __FOREGROUND_INTENSITY,
+    green       = __FOREGROUND_GREEN | __FOREGROUND_INTENSITY,
+    cyan        = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_INTENSITY,
+    red         = __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
+    magenta     = __FOREGROUND_BLUE  | __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
+    yellow      = __FOREGROUND_GREEN | __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
+    white       = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_RED | __FOREGROUND_INTENSITY,
+    on_blue     = __BACKGROUND_BLUE,//| __BACKGROUND_INTENSITY
+    on_red      = __BACKGROUND_RED,//| __BACKGROUND_INTENSITY
+    on_magenta  = __BACKGROUND_BLUE  | __BACKGROUND_RED,//| __BACKGROUND_INTENSITY
+    on_grey     = __BACKGROUND_BLUE  | __BACKGROUND_GREEN | __BACKGROUND_RED,
+    on_green    = __BACKGROUND_GREEN | __BACKGROUND_INTENSITY,
+    on_cyan     = __BACKGROUND_BLUE  | __BACKGROUND_GREEN | __BACKGROUND_INTENSITY,
+    on_yellow   = __BACKGROUND_GREEN | __BACKGROUND_RED   | __BACKGROUND_INTENSITY,
+    on_white    = __BACKGROUND_BLUE  | __BACKGROUND_GREEN | __BACKGROUND_RED | __BACKGROUND_INTENSITY,
+    reset       = 0xFF,
 };
 #elif defined(__unix__) || defined(__APPLE__)
 enum class clr : uint8_t {
@@ -96,17 +105,46 @@ enum class clr : uint8_t {
 
 #if defined(_WIN32)
 namespace colored_cout_impl {
-    uint16_t getColorCode(const clr color);
-    uint16_t getConsoleTextAttr();
-    void setConsoleTextAttr(const uint16_t attr);
-}
+# ifndef WINBASEAPI
+extern "C" {
+    struct CONSOLE_SCREEN_BUFFER_INFO {
+        int16_t dwSize_X, dwSize_Y;
+        int16_t dwCursorPosition_X, dwCursorPosition_Y;
+        uint16_t wAttributes;
+        int16_t srWindow_Left, srWindow_Top, srWindow_Right, srWindow_Bottom;
+        int16_t dwMaximumWindowSize_X, dwMaximumWindowSize_Y;
+    };
+    static_assert(sizeof(CONSOLE_SCREEN_BUFFER_INFO) == 22, "");
+
+    extern void* __stdcall GetStdHandle(uint32_t nStdHandle);
+    extern int32_t __stdcall GetConsoleScreenBufferInfo(void* hConsoleOutput,
+        CONSOLE_SCREEN_BUFFER_INFO* lpConsoleScreenBufferInfo);
+    extern int32_t __stdcall SetConsoleTextAttribute(void* hConsoleOutput, uint32_t wAttributes);
+} // extern "C"
+# endif // WINADVAPI
+
+    inline uint16_t getConsoleTextAttr() {
+#     ifndef WINBASEAPI
+        constexpr uint32_t STD_OUTPUT_HANDLE = -11;
+#     endif // WINBASEAPI
+        CONSOLE_SCREEN_BUFFER_INFO buffer_info;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &buffer_info);
+        return buffer_info.wAttributes;
+    }
+    inline void setConsoleTextAttr(const uint16_t attr) {
+#     ifndef WINBASEAPI
+        constexpr uint32_t STD_OUTPUT_HANDLE = -11;
+#     endif // WINBASEAPI
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), attr);
+    }
+} // namespace colored_cout_impl
 #endif
 
 template <typename type>
 type& operator<<(type& ostream, const clr color) {
 # if defined(_WIN32)
     //static const uint16_t initial_attributes = colored_cout_impl::getConsoleTextAttr();
-    static const uint16_t initial_attributes = colored_cout_impl::getColorCode(clr::grey);
+    static const uint16_t initial_attributes = static_cast<uint16_t>(clr::grey);
     static uint16_t background = initial_attributes & 0x00F0;
     static uint16_t foreground = initial_attributes & 0x000F;
 # endif
@@ -123,7 +161,7 @@ type& operator<<(type& ostream, const clr color) {
     else {
 #     if defined(_WIN32)
         uint16_t set = 0;
-        const uint16_t colorCode = colored_cout_impl::getColorCode(color);
+        const uint16_t colorCode = static_cast<uint16_t>(color);
         if (colorCode & 0x00F0) {
             background = colorCode;
             set = background | foreground;
