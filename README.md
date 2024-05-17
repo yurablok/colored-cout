@@ -33,6 +33,25 @@ std::cout << clr::red     << clr::on_cyan    << " red "
           << clr::grey    << clr::on_white   << " grey "
           << clr::white   << clr::on_grey    << " white "
           << clr::reset                      << " reset\n";
+std::cout << CLR_RED    " red "
+          << CLR_YELLOW " yellow "
+          << CLR_GREEN  " green "
+          << CLR_CYAN   " cyan "
+          << CLR_BLUE   " blue "
+          << CLR_MAGENTA" magenta "
+          << CLR_GREY   " grey "
+          << CLR_WHITE  " white "
+          << CLR_RESET  " reset\n";
+std::cout << CLR_RED     CLR_ON_CYAN   " red "
+          << CLR_YELLOW  CLR_ON_BLUE   " yellow "
+          << CLR_GREEN   CLR_ON_MAGENTA" green "
+          << CLR_CYAN    CLR_ON_RED    " cyan "
+          << CLR_BLUE    CLR_ON_YELLOW " blue "
+          << CLR_MAGENTA CLR_ON_GREEN  " magenta "
+          << CLR_GREY    CLR_ON_WHITE  " grey "
+          << CLR_WHITE   CLR_ON_GREY   " white "
+          << CLR_RESET                 " reset\n";
 ```
 
-Tested on MSVC 14.0 + Windows 10 & GCC 5.2.1 + Ubuntu 15.10.
+Tested on `MSVC 14.0 + Windows 10`, `GCC 5.2 + Ubuntu 15.10`, `MSVC 19.39 + Windows 11`,
+`GCC 12.3 + Ubuntu 22.04 in WSL2`

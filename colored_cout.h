@@ -27,6 +27,8 @@
  * - https://github.com/yurablok/colored-cout
  ********************************************************************************/
 #pragma once
+#ifndef COLORED_COUT_H
+#define COLORED_COUT_H
 #include <cstdint>
 
 // usage:
@@ -48,6 +50,42 @@
 //           << clr::grey    << clr::on_white   << " grey "
 //           << clr::white   << clr::on_grey    << " white "
 //           << clr::reset                      << " reset\n";
+// std::cout << CLR_RED    " red "
+//           << CLR_YELLOW " yellow "
+//           << CLR_GREEN  " green "
+//           << CLR_CYAN   " cyan "
+//           << CLR_BLUE   " blue "
+//           << CLR_MAGENTA" magenta "
+//           << CLR_GREY   " grey "
+//           << CLR_WHITE  " white "
+//           << CLR_RESET  " reset\n";
+// std::cout << CLR_RED     CLR_ON_CYAN   " red "
+//           << CLR_YELLOW  CLR_ON_BLUE   " yellow "
+//           << CLR_GREEN   CLR_ON_MAGENTA" green "
+//           << CLR_CYAN    CLR_ON_RED    " cyan "
+//           << CLR_BLUE    CLR_ON_YELLOW " blue "
+//           << CLR_MAGENTA CLR_ON_GREEN  " magenta "
+//           << CLR_GREY    CLR_ON_WHITE  " grey "
+//           << CLR_WHITE   CLR_ON_GREY   " white "
+//           << CLR_RESET                 " reset\n";
+
+#define CLR_GREY       "\033[37m" // 30
+#define CLR_RED        "\033[91m" // 31
+#define CLR_GREEN      "\033[92m" // 32
+#define CLR_YELLOW     "\033[93m" // 33
+#define CLR_BLUE       "\033[94m" // 34
+#define CLR_MAGENTA    "\033[95m" // 35
+#define CLR_CYAN       "\033[96m" // 36
+#define CLR_WHITE      "\033[97m" // 37
+#define CLR_ON_GREY    "\033[100m" // 40 47
+#define CLR_ON_RED     "\033[41m"
+#define CLR_ON_GREEN   "\033[102m" // 42
+#define CLR_ON_YELLOW  "\033[103m" // 43
+#define CLR_ON_BLUE    "\033[44m"
+#define CLR_ON_MAGENTA "\033[45m"
+#define CLR_ON_CYAN    "\033[106m" // 46
+#define CLR_ON_WHITE   "\033[107m" // 47
+#define CLR_RESET      "\033[m"
 
 #if defined(_WIN32)
 enum class clr : uint8_t {
@@ -80,28 +118,27 @@ enum class clr : uint8_t {
 };
 #elif defined(__unix__) || defined(__APPLE__)
 enum class clr : uint8_t {
-    grey       = 30,
-    red        = 31,
-    green      = 32,
-    yellow     = 33,
-    blue       = 34,
-    magenta    = 35,
-    cyan       = 36,
-    white      = 37,
-    on_grey    = 40,
+    grey       = 37, // 30
+    red        = 91, // 31
+    green      = 92, // 32
+    yellow     = 93, // 33
+    blue       = 94, // 34
+    magenta    = 95, // 35
+    cyan       = 96, // 36
+    white      = 97, // 37
+    on_grey    = 100, // 40 47
     on_red     = 41,
-    on_green   = 42,
-    on_yellow  = 43,
+    on_green   = 102, // 42
+    on_yellow  = 103, // 43
     on_blue    = 44,
     on_magenta = 45,
-    on_cyan    = 46,
-    on_white   = 47,
+    on_cyan    = 106, // 46
+    on_white   = 107, // 47
     reset
 };
 #else
 #   error unsupported
 #endif
-
 
 #if defined(_WIN32)
 namespace colored_cout_impl {
@@ -178,3 +215,5 @@ type& operator<<(type& ostream, const clr color) {
     }
     return ostream;
 }
+
+#endif // COLORED_COUT_H
