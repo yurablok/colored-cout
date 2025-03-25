@@ -32,60 +32,50 @@
 #include <cstdint>
 
 // usage:
-// std::cout << clr::red     << " red "
-//           << clr::yellow  << " yellow "
-//           << clr::green   << " green "
-//           << clr::cyan    << " cyan "
-//           << clr::blue    << " blue "
-//           << clr::magenta << " magenta "
-//           << clr::grey    << " grey "
-//           << clr::white   << " white "
-//           << clr::reset   << " reset\n";
-// std::cout << clr::red     << clr::on_cyan    << " red "
-//           << clr::yellow  << clr::on_blue    << " yellow "
-//           << clr::green   << clr::on_magenta << " green "
-//           << clr::cyan    << clr::on_red     << " cyan "
-//           << clr::blue    << clr::on_yellow  << " blue "
-//           << clr::magenta << clr::on_green   << " magenta "
-//           << clr::grey    << clr::on_white   << " grey "
-//           << clr::white   << clr::on_grey    << " white "
-//           << clr::reset                      << " reset\n";
-// std::cout << CLR_RED    " red "
-//           << CLR_YELLOW " yellow "
-//           << CLR_GREEN  " green "
-//           << CLR_CYAN   " cyan "
-//           << CLR_BLUE   " blue "
-//           << CLR_MAGENTA" magenta "
-//           << CLR_GREY   " grey "
-//           << CLR_WHITE  " white "
-//           << CLR_RESET  " reset\n";
-// std::cout << CLR_RED     CLR_ON_CYAN   " red "
-//           << CLR_YELLOW  CLR_ON_BLUE   " yellow "
-//           << CLR_GREEN   CLR_ON_MAGENTA" green "
-//           << CLR_CYAN    CLR_ON_RED    " cyan "
-//           << CLR_BLUE    CLR_ON_YELLOW " blue "
-//           << CLR_MAGENTA CLR_ON_GREEN  " magenta "
-//           << CLR_GREY    CLR_ON_WHITE  " grey "
-//           << CLR_WHITE   CLR_ON_GREY   " white "
-//           << CLR_RESET                 " reset\n";
+// std::cout << clr::red      << clr::on_cyan     << " red "
+//           << clr::yellow   << clr::on_blue     << " yellow "
+//           << clr::green    << clr::on_magenta  << " green "
+//           << clr::cyan     << clr::on_red      << " cyan "
+//           << clr::blue     << clr::on_yellow   << " blue "
+//           << clr::magenta  << clr::on_green    << " magenta "
+//           << clr::white    << clr::on_black    << " white "
+//           << clr::gray     << clr::on_darkgray << " gray "
+//           << clr::darkgray << clr::on_gray     << " darkgray "
+//           << clr::black    << clr::on_white    << " black "
+//           << clr::reset                        << " compliant\n";
+// std::cout << CLR_RED      CLR_ON_CYAN     " red "
+//           << CLR_YELLOW   CLR_ON_BLUE     " yellow "
+//           << CLR_GREEN    CLR_ON_MAGENTA  " green "
+//           << CLR_CYAN     CLR_ON_RED      " cyan "
+//           << CLR_BLUE     CLR_ON_YELLOW   " blue "
+//           << CLR_MAGENTA  CLR_ON_GREEN    " magenta "
+//           << CLR_WHITE    CLR_ON_BLACK    " white "
+//           << CLR_GRAY     CLR_ON_DARKGRAY " gray "
+//           << CLR_DARKGRAY CLR_ON_GRAY     " darkgray "
+//           << CLR_BLACK    CLR_ON_WHITE    " black "
+//           << CLR_RESET                    " compliant\n";
 
-#define CLR_GREY       "\033[37m" // 30
-#define CLR_RED        "\033[91m" // 31
-#define CLR_GREEN      "\033[92m" // 32
-#define CLR_YELLOW     "\033[93m" // 33
-#define CLR_BLUE       "\033[94m" // 34
-#define CLR_MAGENTA    "\033[95m" // 35
-#define CLR_CYAN       "\033[96m" // 36
-#define CLR_WHITE      "\033[97m" // 37
-#define CLR_ON_GREY    "\033[100m" // 40 47
-#define CLR_ON_RED     "\033[41m"
-#define CLR_ON_GREEN   "\033[102m" // 42
-#define CLR_ON_YELLOW  "\033[103m" // 43
-#define CLR_ON_BLUE    "\033[44m"
-#define CLR_ON_MAGENTA "\033[45m"
-#define CLR_ON_CYAN    "\033[106m" // 46
-#define CLR_ON_WHITE   "\033[107m" // 47
-#define CLR_RESET      "\033[m"
+#define CLR_RED             "\033[91m" // 31
+#define CLR_YELLOW          "\033[93m" // 33
+#define CLR_GREEN           "\033[92m" // 32
+#define CLR_CYAN            "\033[96m" // 36
+#define CLR_BLUE            "\033[94m" // 34
+#define CLR_MAGENTA         "\033[95m" // 35
+#define CLR_WHITE           "\033[97m"
+#define CLR_GRAY            "\033[37m"
+#define CLR_DARKGRAY        "\033[90m"
+#define CLR_BLACK           "\033[30m"
+#define CLR_ON_RED          "\033[41m"
+#define CLR_ON_YELLOW       "\033[103m" // 43
+#define CLR_ON_GREEN        "\033[42m" // 102
+#define CLR_ON_CYAN         "\033[46m" // 106
+#define CLR_ON_BLUE         "\033[44m"
+#define CLR_ON_MAGENTA      "\033[45m"
+#define CLR_ON_WHITE        "\033[107m"
+#define CLR_ON_GRAY         "\033[47m"
+#define CLR_ON_DARKGRAY     "\033[100m"
+#define CLR_ON_BLACK        "\033[40m"
+#define CLR_RESET           "\033[m"
 
 #if defined(_WIN32)
 enum class clr : uint8_t {
@@ -98,42 +88,50 @@ enum class clr : uint8_t {
     __BACKGROUND_RED       = 0x0040,
     __BACKGROUND_INTENSITY = 0x0080,
 
-    grey        = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_RED,
-    blue        = __FOREGROUND_BLUE  | __FOREGROUND_INTENSITY,
-    green       = __FOREGROUND_GREEN | __FOREGROUND_INTENSITY,
-    cyan        = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_INTENSITY,
-    red         = __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
-    magenta     = __FOREGROUND_BLUE  | __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
-    yellow      = __FOREGROUND_GREEN | __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
-    white       = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_RED | __FOREGROUND_INTENSITY,
-    on_blue     = __BACKGROUND_BLUE,//| __BACKGROUND_INTENSITY
-    on_red      = __BACKGROUND_RED,//| __BACKGROUND_INTENSITY
-    on_magenta  = __BACKGROUND_BLUE  | __BACKGROUND_RED,//| __BACKGROUND_INTENSITY
-    on_grey     = __BACKGROUND_BLUE  | __BACKGROUND_GREEN | __BACKGROUND_RED,
-    on_green    = __BACKGROUND_GREEN | __BACKGROUND_INTENSITY,
-    on_cyan     = __BACKGROUND_BLUE  | __BACKGROUND_GREEN | __BACKGROUND_INTENSITY,
-    on_yellow   = __BACKGROUND_GREEN | __BACKGROUND_RED   | __BACKGROUND_INTENSITY,
-    on_white    = __BACKGROUND_BLUE  | __BACKGROUND_GREEN | __BACKGROUND_RED | __BACKGROUND_INTENSITY,
-    reset       = 0xFF,
+    red          = __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
+    yellow       = __FOREGROUND_GREEN | __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
+    green        = __FOREGROUND_GREEN | __FOREGROUND_INTENSITY,
+    cyan         = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_INTENSITY,
+    blue         = __FOREGROUND_BLUE  | __FOREGROUND_INTENSITY,
+    magenta      = __FOREGROUND_BLUE  | __FOREGROUND_RED   | __FOREGROUND_INTENSITY,
+    white        = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_RED | __FOREGROUND_INTENSITY,
+    gray         = __FOREGROUND_BLUE  | __FOREGROUND_GREEN | __FOREGROUND_RED,
+    darkgray     = __FOREGROUND_INTENSITY,
+    black        = 0x1F,
+    on_red       = __BACKGROUND_RED,//| __BACKGROUND_INTENSITY
+    on_yellow    = __BACKGROUND_GREEN | __BACKGROUND_RED   | __BACKGROUND_INTENSITY,
+    on_green     = __BACKGROUND_GREEN,//| __BACKGROUND_INTENSITY,
+    on_cyan      = __BACKGROUND_BLUE  | __BACKGROUND_GREEN,//| __BACKGROUND_INTENSITY,
+    on_blue      = __BACKGROUND_BLUE,//| __BACKGROUND_INTENSITY
+    on_magenta   = __BACKGROUND_BLUE  | __BACKGROUND_RED,//| __BACKGROUND_INTENSITY
+    on_white     = __BACKGROUND_BLUE  | __BACKGROUND_GREEN | __BACKGROUND_RED | __BACKGROUND_INTENSITY,
+    on_gray      = __BACKGROUND_BLUE  | __BACKGROUND_GREEN | __BACKGROUND_RED,
+    on_darkgray  = __BACKGROUND_INTENSITY,
+    on_black     = 0xF1,
+    reset        = 0xFF,
 };
 #elif defined(__unix__) || defined(__APPLE__)
 enum class clr : uint8_t {
-    grey       = 37, // 30
-    red        = 91, // 31
-    green      = 92, // 32
-    yellow     = 93, // 33
-    blue       = 94, // 34
-    magenta    = 95, // 35
-    cyan       = 96, // 36
-    white      = 97, // 37
-    on_grey    = 100, // 40 47
-    on_red     = 41,
-    on_green   = 102, // 42
-    on_yellow  = 103, // 43
-    on_blue    = 44,
-    on_magenta = 45,
-    on_cyan    = 106, // 46
-    on_white   = 107, // 47
+    red          = 91, // 31
+    yellow       = 93, // 33
+    green        = 92, // 32
+    cyan         = 96, // 36
+    blue         = 94, // 34
+    magenta      = 95, // 35
+    white        = 97,
+    gray         = 37,
+    darkgray     = 90,
+    black        = 30,
+    on_red       = 41,
+    on_yellow    = 103, // 43
+    on_green     = 42, // 102
+    on_cyan      = 46, // 106
+    on_blue      = 44,
+    on_magenta   = 45,
+    on_white     = 107,
+    on_gray      = 47,
+    on_darkgray  = 100,
+    on_black     = 40,
     reset
 };
 #else
@@ -152,6 +150,8 @@ extern "C" {
         int16_t dwMaximumWindowSize_X, dwMaximumWindowSize_Y;
     };
     static_assert(sizeof(CONSOLE_SCREEN_BUFFER_INFO) == 22, "");
+
+    //NOTE: Don't include `colored_cout.h` before `Windows.h`!
 
     extern void* __stdcall GetStdHandle(uint32_t nStdHandle);
     extern int32_t __stdcall GetConsoleScreenBufferInfo(void* hConsoleOutput,
@@ -181,7 +181,7 @@ template <typename type>
 type& operator<<(type& ostream, const clr color) {
 # if defined(_WIN32)
     //static const uint16_t initial_attributes = colored_cout_impl::getConsoleTextAttr();
-    static const uint16_t initial_attributes = static_cast<uint16_t>(clr::grey);
+    static const uint16_t initial_attributes = static_cast<uint16_t>(clr::gray);
     static uint16_t background = initial_attributes & 0x00F0;
     static uint16_t foreground = initial_attributes & 0x000F;
 # endif
@@ -197,18 +197,21 @@ type& operator<<(type& ostream, const clr color) {
     }
     else {
 #     if defined(_WIN32)
-        uint16_t set = 0;
         const uint16_t colorCode = static_cast<uint16_t>(color);
-        if (colorCode & 0x00F0) {
+        if (color == clr::on_black) {
+            background = 0;
+        }
+        else if (color == clr::black) {
+            foreground = 0;
+        }
+        else if (colorCode & 0x00F0) {
             background = colorCode;
-            set = background | foreground;
         }
         else if (colorCode & 0x000F) {
             foreground = colorCode;
-            set = background | foreground;
         }
         ostream.flush();
-        colored_cout_impl::setConsoleTextAttr(set);
+        colored_cout_impl::setConsoleTextAttr(background | foreground);
 #     elif defined(__unix__) || defined(__APPLE__)
         ostream << "\033[" << static_cast<uint32_t>(color) << "m";
 #     endif
